@@ -1,18 +1,37 @@
+using AirStation.ControlCenter.App.Configuration;
+using System.Text.Json;
+
 namespace AirStation.ControlCenter.App
 {
     internal static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            //Application.Run(new MainForm());
-            System.Windows.Forms.Application.Run(new MainForm());
+
+            string filePath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+            AppSettings settings;
+            try
+            {
+                settings = AppSettingsLoader.Load(filePath);
+            }
+            catch (Exception ex) when (
+                ex is IOException or UnauthorizedAccessException
+                or JsonException or InvalidDataException)
+            {
+                MessageBox.Show(
+                    $"无法加载配置文件：\n{filePath}\n\n{ex.Message}",
+                    "启动失败",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error );
+
+                Environment.ExitCode = 1;
+                return;
+            }
+            MainForm mainForm = new MainForm();
+            mainForm.Text = settings.StationName;
+            System.Windows.Forms.Application.Run(mainForm);
         }
     }
 }

@@ -70,3 +70,6 @@ BenchmarkDotNet.Artifacts/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# 忽略学习资料目录及其全部内容
+/docs/learn/
